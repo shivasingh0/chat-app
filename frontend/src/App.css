@@ -1,1 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
+.app{
+    background: url("https://img.freepik.com/free-photo/hand-pushing-button-touch-screen_1112-491.jpg?t=st=1726941938~exp=1726945538~hmac=b7dea06361e506d7c08cbba9ce7f9e0f1a92c299205a3ef46fc375a3d5733630&w=740");
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+}
