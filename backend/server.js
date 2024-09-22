@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectToDb from "./config/dbConnection.js";
 import colors from "colors"
 import userRoutes from "./routes/userRoutes.js"
+import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const app = express();
 dotenv.config();
@@ -18,6 +19,10 @@ app.get("/", (req, res) => {
 
 // routes
 app.use("/api/user", userRoutes);
+
+// middleware
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`.yellow.bold);
