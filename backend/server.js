@@ -4,11 +4,13 @@ import connectToDb from "./config/dbConnection.js";
 import colors from "colors"
 import userRoutes from "./routes/userRoutes.js"
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
+import cors from "cors";
 
 const app = express();
 dotenv.config();
 connectToDb();
 
+app.use(cors());
 app.use(express.json()) // to accept json data
 
 const port = process.env.PORT || 9000;

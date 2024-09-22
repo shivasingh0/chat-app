@@ -6,7 +6,7 @@ import { generateToken } from "../config/generateToken.js";
 // register user
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, pic } = req.body;
-
+  
   //   check the fields
   if (!name || !email || !password) {
     return res.status(400).json({ message: "Please fill in all fields" });
@@ -34,9 +34,9 @@ export const registerUser = asyncHandler(async (req, res) => {
       pic: user.pic,
       token: generateToken(user._id),
     });
+  } else {
+    res.status(400).json({ message: "Invalid user data" });
   }
-
-  return res.status(400).json({ message: "Failed to create user" });
 });
 
 // login user
