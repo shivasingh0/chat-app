@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 
+
 // middleware
 app.use(notFound);
 app.use(errorHandler);

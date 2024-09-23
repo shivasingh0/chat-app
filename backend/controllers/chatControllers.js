@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import Chat from "../models/chatModel.js";
 import User from "../models/userModel.js";
 
-//@description     Create or fetch OneonOne Chat
+//@description     Create or fetch One on One Chat
 //@route           POST /api/chat/
 //@access          Protected
 export const accessChat = asyncHandler(async (req, res) => {
@@ -101,3 +101,56 @@ export const createGroupChat = asyncHandler(async (req, res) => {
     }
 });
 
+//@description     Rename Group
+//@route           PUT /api/chat/renameGroup
+//@access          Protected
+export const renameGroup = asyncHandler(async (req, res) => {
+    const { chatId, chatName } = req.body;
+
+    const updatedChat = await Chat.findByIdAndUpdate(chatId, { chatName: chatName }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!updatedChat) {
+        res.status(404);
+        throw new Error("Chat Not Found");
+    } else {
+        res.json(updatedChat);
+    }
+}); 
+
+//@description     Add to Group
+//@route           PUT /api/chat/addToGroup
+//@access          Protected
+export const addToGroup = asyncHandler(async (req, res) => {
+    const { chatId, userId } = req.body;
+
+    const updatedChat = await Chat.findByIdAndUpdate(chatId, { $push: { users: userId } }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!updatedChat) {
+        res.status(404);
+        throw new Error("Chat Not Found");
+    } else {
+        res.json(updatedChat);
+    }
+});
+
+//@description     Remove from Group
+//@route           PUT /api/chat/removeFromGroup
+//@access          Protected
+export const removeFromGroup = asyncHandler(async (req, res) => {
+    const { chatId, userId } = req.body;
+
+    const updatedChat = await Chat.findByIdAndUpdate(chatId, { $pull: { users: userId } }, { new: true })
+        .populate("users", "-password")
+        .populate("groupAdmin", "-password");
+
+    if (!updatedChat) {
+        res.status(404);
+        throw new Error("Chat Not Found");
+    } else {
+        res.json(updatedChat);
+    }
+});
