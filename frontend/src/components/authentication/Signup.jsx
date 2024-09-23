@@ -76,7 +76,7 @@ const Signup = () => {
           duration: 5000,
           isClosable: true,
         });
-        navigate("/chat");
+        navigate("/chats");
       }
     } catch (error) {
       console.log(error);

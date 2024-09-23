@@ -5,11 +5,12 @@ import colors from "colors"
 import userRoutes from "./routes/userRoutes.js"
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 import cors from "cors";
+import chatRoutes from "./routes/chatRoutes.js";
 
 const app = express();
 dotenv.config();
 connectToDb();
-
+  
 app.use(cors());
 app.use(express.json()) // to accept json data
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
 
 // routes
 app.use("/api/user", userRoutes);
+app.use("/api/chat", chatRoutes);
 
 // middleware
 app.use(notFound);

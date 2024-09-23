@@ -3,10 +3,10 @@ import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../config/generateToken.js";
 
-// register user
+//----- register user -----//
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, pic } = req.body;
-  
+
   //   check the fields
   if (!name || !email || !password) {
     return res.status(400).json({ message: "Please fill in all fields" });
@@ -39,7 +39,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// login user
+//----- login user -----//
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check the fields
@@ -65,6 +65,21 @@ export const loginUser = asyncHandler(async (req, res) => {
     pic: user.pic,
     token,
   });
+});
+
+//----- search api -----//
+export const searchUser = asyncHandler(async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {}; 
+    
+  const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
+  res.send(users);
 });
 
 // get all users
