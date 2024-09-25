@@ -70,6 +70,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 //----- search api -----//
 export const searchUser = asyncHandler(async (req, res) => {
   const keyword = req.query.search
+  // console.log(`keyword`, keyword)
     ? {
         $or: [
           { name: { $regex: req.query.search, $options: "i" } },
@@ -77,6 +78,8 @@ export const searchUser = asyncHandler(async (req, res) => {
         ],
       }
     : {}; 
+
+    // console.log(`keyword`, keyword)
     
   const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
   res.send(users);
