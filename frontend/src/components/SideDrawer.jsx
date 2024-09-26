@@ -28,11 +28,11 @@ import ChatLoading from "./ChatLoading";
 import UserListItem from "./UserListItem";
 
 const SideDrawer = () => {
-  const [search, setSearch] = useState(false);
+  const [search, setSearch] = useState();
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
-  const { user } = ChatState();
+  const { user, setSelectedChat, chats, setChats } = ChatState();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const logoutHandler = () => {
@@ -62,7 +62,10 @@ const SideDrawer = () => {
         },
       };
 
-      const { data } = await axiosInstance.get(`/user?search=${search}`, config);
+      const { data } = await axiosInstance.get(
+        `/user?search=${search}`,
+        config
+      );
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -78,7 +81,36 @@ const SideDrawer = () => {
   };
 
   // Access Chat
-  const accessChat = (userId) => {}
+  const accessChat = async (userId) => {
+    try {
+      setLoadingChat(true);
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axiosInstance.post("/chat", { userId }, config);
+
+      if (!chats.find((c)=>c._id === data._id)) {
+        setChats([data, ...chats])
+      }
+
+      setSelectedChat(data);
+      setLoadingChat(false);
+      onClose();
+    } catch (error) {
+      toast({
+        title: "Error accessing the chat",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+  };
 
   return (
     <>
