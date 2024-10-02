@@ -22,60 +22,61 @@ import UserListItem from "./UserListItem";
 import { ChatState } from "../context/ChatProvider";
 import axiosInstance from "../axiosInstance/baseUrl";
 
-const UpdateGroupChatModal = ({fetchMessages, fetchAgain, setFetchAgain }) => {
+const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { selectedChat, setSelectedChat, user } = ChatState();
-  const [groupChatName, setGroupChatName] = useState();
+  const [groupChatName, setGroupChatName] = useState(""); // Initialize as an empty string
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [renameLoading, setRenameLoading] = useState(false);
   const toast = useToast();
 
-  // handle remove
   const handleRemove = async (user1) => {
     if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
-        toast({
-          title: "Only admins can remove someone!",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom",
-        });
-        return;
-      }
-    try {
-        setLoading(true)
-
-        const config = {
-            headers: {
-                Authorization: `Bearer ${user.token}`,
-            }
-        }
-
-        const {data} = axiosInstance.put("/chat/removeFromGroup", {
-            chatId: selectedChat._id,
-            userId: user1._id
-        } ,config)
-
-        user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
-        setFetchAgain(!fetchAgain);
-        fetchMessages();
-        setLoading(false);
-
-    } catch (error) {
-        toast({
-            title: "Error Occurred!",
-            description: "Failed to load the search result",
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-            position: "bottom-left",
-          });
+      toast({
+        title: "Only admins can remove someone!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
     }
+
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axiosInstance.put(
+        `/chat/removeFromGroup`,
+        {
+          chatId: selectedChat._id,
+          userId: user1._id,
+        },
+        config
+      );
+
+      user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+      fetchMessages();
+      setLoading(false);
+    } catch (error) {
+      toast({
+        title: "Error Occurred!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      setLoading(false);
+    }
+    setGroupChatName("");
   };
 
-  // handle rename groupName
   const handleRename = async () => {
     if (!groupChatName)
       return toast({
@@ -128,7 +129,6 @@ const UpdateGroupChatModal = ({fetchMessages, fetchAgain, setFetchAgain }) => {
     setGroupChatName("");
   };
 
-  // handle search user
   const handleSearch = async (query) => {
     setSearch(query);
     if (!query) {
@@ -136,32 +136,80 @@ const UpdateGroupChatModal = ({fetchMessages, fetchAgain, setFetchAgain }) => {
     }
 
     try {
-        setLoading(true);
-        const config = {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        };
-        const { data } = await axiosInstance.get(`/user?search=${search}`, config);
-        console.log(data);
-        setLoading(false);
-        setSearchResult(data);
-      } catch (error) {
-        toast({
-          title: "Error Occurred!",
-          description: "Failed to Load the Search Results",
-          status: "error",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom-left",
-        });
-        setLoading(false);
-      }
-
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axiosInstance.get(
+        `/user?search=${search}`,
+        config
+      );
+      console.log(data);
+      setLoading(false);
+      setSearchResult(data);
+    } catch (error) {
+      toast({
+        title: "Error Occurred!",
+        description: "Failed to Load the Search Results",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+      setLoading(false);
+    }
   };
 
-  // handle add user
-  const handleAddUser = () => {};
+  const handleAddUser = async (user1) => {
+    if (selectedChat.users.find((u) => u._id === user1._id)) {
+      toast({
+        title: "User Already Added",
+        description: "User is already a part of the chat",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    if (selectedChat.groupAdmin._id !== user._id) {
+      toast({
+        title: "Only admins can add someone",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axiosInstance.put("/chat/addToGroup", {
+        chatId: selectedChat._id,
+        userId: user1._id,
+      },config);
+      setLoading(false);  
+      setSelectedChat(data)
+      setFetchAgain(!fetchAgain)
+    } catch (error) {
+      toast({
+        title: "Error Occurred!",
+        description: "Failed to add user to the chat",
+        status: "error",
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
 
   return (
     <>
